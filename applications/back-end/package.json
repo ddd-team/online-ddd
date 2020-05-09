@@ -1,0 +1,29 @@
+{
+  "name": "online-ddd-back-end",
+  "private": true,
+  "description": "A tool for DDD planning and visualization.",
+  "version": "0.1.0",
+  "author": "Andreas Lillvik <andreas@lillvik.se>",
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "2.0.5"
+  },
+  "keywords": [
+    "node.js"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "",
+    "develop": "",
+    "start": "",
+    "clean": "",
+    "test": "echo \"Write tests! \" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ddd-team/online-ddd"
+  },
+  "bugs": {
+    "url": "https://github.com/ddd-team/online-ddd/issues"
+  }
+}
