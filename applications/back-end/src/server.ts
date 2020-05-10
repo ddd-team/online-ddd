@@ -7,57 +7,64 @@ import {
   readProject,
   updateProject,
   deleteProject,
-} from "./database";
+  connectDatabase,
+} from "./mongoDatabase";
 
-let id = 1;
+export const startServer = async () => {
+  let id = 1;
 
-const app = express();
+  const app = express();
 
-initGraphQL(app);
+  initGraphQL(app);
 
-app.use(bodyParser.json());
+  const connectionString = process.env.mongodbConnectionString;
 
-app.post("/projects", (req, res) => {
-  console.log(req.body);
-  const { name } = req.body.project;
+  await connectDatabase(connectionString);
 
-  const project = { name, id: id++ };
+  app.use(bodyParser.json());
 
-  createProject(project);
+  app.post("/projects", async (req, res) => {
+    console.log(req.body);
+    const { name } = req.body.project;
 
-  res.send({ project });
-});
+    const project = { name, id: id++ };
 
-app.get("/projects", (req, res) => {
-  const projects = readProjects();
+    await createProject(project);
 
-  res.send({ projects });
-});
+    res.send({ project });
+  });
 
-app.get("/projects/:id", (req, res) => {
-  const project = readProject(+req.params.id);
+  app.get("/projects", async (req, res) => {
+    const projects = await readProjects();
 
-  res.send({ project });
-});
+    res.send({ projects });
+  });
 
-app.put("/projects/:id", (req, res) => {
-  const id = +req.params.id;
-  const { name } = req.body.project;
-  const project = { name, id };
+  app.get("/projects/:id", async (req, res) => {
+    const project = await readProject(+req.params.id);
 
-  updateProject(project);
+    res.send({ project });
+  });
 
-  res.send({ project });
-});
+  app.put("/projects/:id", async (req, res) => {
+    const id = +req.params.id;
+    const { name } = req.body.project;
+    const project = { name, id };
 
-app.delete("/projects/:id", (req, res) => {
-  const id = +req.params.id;
+    await updateProject(project);
 
-  deleteProject(id);
+    res.send({ project });
+  });
 
-  res.status(204).send();
-});
+  app.delete("/projects/:id", async (req, res) => {
+    const id = +req.params.id;
 
-app.listen(4000, () => {
-  console.log("Server listening on port 4000");
-});
+    await deleteProject(id);
+
+    res.status(204).send();
+  });
+
+  app.listen(4000, () => {
+    console.log("Server listening on port 4000");
+  });
+};
