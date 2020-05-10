@@ -1,62 +1,55 @@
 import { Project } from "./models/Project";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
-let dbClient: MongoClient;
+let client: MongoClient;
 
-export const connectDatabase = (connectionString: string) => {
-  return new Promise((resolve, reject) => {
-    MongoClient.connect(connectionString, (err, client) => {
-      if (err) {
-        console.error(err);
-        reject(err);
-        return;
-      }
+export const connectDatabase = async (connectionString: string) => {
+  client = await MongoClient.connect(connectionString);
 
-      dbClient = client;
-
-      resolve(client);
-
-      console.log("Connected to Database");
-    });
-  });
+  console.log("Connected to Database");
 };
 
 export const readProjects = async () => {
-  const projectsCollection = dbClient
-    .db("online-ddd")
-    .collection<Project>("projects");
+  const projectsCollection = client.db("online-ddd").collection("projects");
 
-  return await projectsCollection.find().toArray();
+  return await (await projectsCollection.find().toArray()).map(toEntity);
 };
 
-export const readProject = async (id: number) => {
-  const projectsCollection = dbClient
-    .db("online-ddd")
-    .collection<Project>("projects");
+export const readProject = async (id: string) => {
+  const projectsCollection = client.db("online-ddd").collection("projects");
 
-  return await projectsCollection.findOne({ id });
+  return toEntity(await projectsCollection.findOne(new ObjectId(id)));
 };
 
 export const createProject = async (project: Project) => {
-  const projectsCollection = dbClient
-    .db("online-ddd")
-    .collection<Project>("projects");
+  const projectsCollection = client.db("online-ddd").collection("projects");
 
-  return await projectsCollection.insertOne(project);
+  const result = await projectsCollection.insertOne(project);
+
+  return result.insertedId;
 };
 
-export const updateProject = async (project: Project) => {
-  const projectsCollection = dbClient
-    .db("online-ddd")
-    .collection<Project>("projects");
+export const updateProject = async ({ id, ...project }: Project) => {
+  const projectsCollection = client.db("online-ddd").collection("projects");
 
-  return await projectsCollection.findOneAndUpdate({ id: project.id }, project);
+  const result = await projectsCollection.findOneAndUpdate(
+    new ObjectId(id),
+    project
+  );
+
+  return result.value;
 };
 
-export const deleteProject = async (id: number) => {
-  const projectsCollection = dbClient
-    .db("online-ddd")
-    .collection<Project>("projects");
+export const deleteProject = async (id: string) => {
+  const projectsCollection = client.db("online-ddd").collection("projects");
 
-  return await projectsCollection.deleteOne({ id });
+  return await projectsCollection.deleteOne({ _id: new ObjectId(id) });
+};
+
+const toEntity = ({ _id, ...item }: any) => {
+  //Renames _id in database to id in Entity
+  return {
+    id: _id,
+    ...item,
+  };
 };

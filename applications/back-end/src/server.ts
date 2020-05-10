@@ -27,7 +27,7 @@ export const startServer = async () => {
     console.log(req.body);
     const { name } = req.body.project;
 
-    const project = { name, id: id++ };
+    const project = { name };
 
     await createProject(project);
 
@@ -41,13 +41,13 @@ export const startServer = async () => {
   });
 
   app.get("/projects/:id", async (req, res) => {
-    const project = await readProject(+req.params.id);
+    const project = await readProject(req.params.id);
 
     res.send({ project });
   });
 
   app.put("/projects/:id", async (req, res) => {
-    const id = +req.params.id;
+    const id = req.params.id;
     const { name } = req.body.project;
     const project = { name, id };
 
@@ -57,7 +57,7 @@ export const startServer = async () => {
   });
 
   app.delete("/projects/:id", async (req, res) => {
-    const id = +req.params.id;
+    const id = req.params.id;
 
     await deleteProject(id);
 
