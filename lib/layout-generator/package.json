@@ -1,0 +1,11 @@
+{
+  "name": "layout-generator",
+  "version": "1.0.0",
+  "description": "Takes a DDD input, and generates a layout from it",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC"
+}
